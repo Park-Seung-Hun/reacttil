@@ -7,9 +7,10 @@ import EventPractice from "./ch4/EventPractice";
 import EventPractice2 from "./ch4/EventPractice2";
 import ScrollBox from "./ch5/ScrollBox";
 import ValidationSample from "./ch5/ValidationSample";
+import IterationSample from "./ch6/IterationSample";
 
 function App() {
-  return <ScrollBox />;
+  return <IterationSample />;
 }
 
 export default App;
