@@ -5,9 +5,11 @@ import Counter from "./ch3/Counter";
 import Say from "./ch3/Say";
 import EventPractice from "./ch4/EventPractice";
 import EventPractice2 from "./ch4/EventPractice2";
+import ScrollBox from "./ch5/ScrollBox";
+import ValidationSample from "./ch5/ValidationSample";
 
 function App() {
-  return <EventPractice2 />;
+  return <ScrollBox />;
 }
 
 export default App;
