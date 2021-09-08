@@ -1,16 +1,29 @@
-import "./App.css";
-import ClassComp from "./ch2/ClassComp";
-import FunctionComp from "./ch2/FunctionComp";
-import Counter from "./ch3/Counter";
-import Say from "./ch3/Say";
-import EventPractice from "./ch4/EventPractice";
-import EventPractice2 from "./ch4/EventPractice2";
-import ScrollBox from "./ch5/ScrollBox";
-import ValidationSample from "./ch5/ValidationSample";
-import IterationSample from "./ch6/IterationSample";
+import React, { Component } from "react";
+import LifeCycleSample from "./ch7/LifeCycleSample";
+import ErrorBoundary from "./ch7/ErrorBoundary";
 
-function App() {
-  return <IterationSample />;
+// 랜덤 색상을 생성합니다.
+function getRandomColor() {
+  return "#" + Math.floor(Math.random() * 16777215).toString(16);
 }
-
+class App extends Component {
+  state = {
+    color: "#000000",
+  };
+  handleClick = () => {
+    this.setState({
+      color: getRandomColor(),
+    });
+  };
+  render() {
+    return (
+      <div>
+        <button onClick={this.handleClick}>랜덤 색상</button>
+        <ErrorBoundary>
+          <LifeCycleSample color={this.state.color} />
+        </ErrorBoundary>
+      </div>
+    );
+  }
+}
 export default App;
