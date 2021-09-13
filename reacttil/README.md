@@ -1,92 +1,238 @@
-- 리액트 컴포넌트에는 라이프 사이클(생명주기)가 존재한다.
-  - 이때 컴포넌트의 수명은 `페이지 렌더링 전 -> 페이지에서 사라질 때`까지 이다
-- 리액트 작업 시 `컴포넌트를 처음으로 렌더링 할 때 어떤 작업을 처리` or `컴포넌트 업데이트하기 전후로 작업 처리` or `불필요한 업데이트 방지`하는 작업에서 `라이프사이클 메서드 사용`
+Hooks란? 리액트 v16.8이후 도입된 기능
 
-## 라이프사이클 메서드의 이해
+- useState : 함수 컴포넌트에서도 state 관리.
+- useEffect : 렌더링 직후 작업을 설정.
 
-- 라이프 사이클 메서드의 종류는 총 9가지이다.
-  - `Will` 접두사가 붙은 메서드 : 어떤 작업을 동작하기 전에 실행되는 메서드
-  - `Did` 접두사가 붙은 메서드 : 어떤 작업을 작동한 후에 실행되는 메서드
-- 라이프 사이클은 총 3가지 카테고리로 나뉜다.
+## useState
 
-  <img src='https://media.vlpt.us/images/whdvkf92/post/00857de6-0258-4b14-ad9b-3f653dca1553/%EB%A6%AC%EC%95%A1%ED%8A%B8%20%EB%9D%BC%EC%9D%B4%ED%94%84%EC%82%AC%EC%9D%B4%ED%81%B4.JPG' height=300px>
+```js
+const [state, setState] = useState(기본 값);
+// 가변 상태를 지닐 수 있게 해준다.
+```
 
-- 카테고리 종류
+1. useState를 여러 번 사용하기.
 
-  - `마운트` : DOM이 생성되고 웹 브라우저 상에 컴포넌트가 나타나는 것.
-    <img src='https://t1.daumcdn.net/cfile/tistory/99617E3F5C5B153F15' height=300px>
-
-    - constructor : 컴포넌트를 새로 만들 때 마다 호출되는 클래스 생성자 메서드
-    - getDerivedStateFromProps : props에 있는 값을 state에 넣을 때 사용하는 메서드.
-    - render : 준비한 UI를 렌더링하는 메서드.
-    - componentDidMount : 컴포넌트가 웹 브라우저상에 나타난 후 호출하는 메서드.
-
-  - `업데이트` : 컴포넌트는 총 4가지 경우에 업데이트한다. (`1.props가 바뀔 때`, `2.state가 바뀔 때`, `3.부모 컴포넌트가 리렌더링 될 때`, `4.this.forceUpdate로 강제로 렌더링을 트리거할 때`)
-    <img src='https://thebook.io/img/080203/174.jpg' height=300px>
-
-    - getDerivedStateFromProps : 마운트에서도 호출되고 업데이트 시작전에도 호출
-    - shouldComponenteUpdate : 컴포넌트가 리렌더링을 할지 말지 결정하는 메서드. (true or false 반환)
-    - render : 컴포넌트를 리렌더링한다.
-    - getSnapshotBeforeUpdate : 컴포넌트 변화를 DOM에 반영하기 바로 직전에 호출하는 메서드.
-    - componentDidUpdate : 컴포넌트의 업데이트 작업이 끝난 후 호출하는 메서드.
-
-  - `언마운트` : 마운트의 반대 과정으로, 컴포넌트를 DOM에서 제거하는 것.
-    <img src='https://thebook.io/img/080203/175.jpg' height=200px>
-    - componentWillUnmount : 컴포넌트가 웹 브라우저 상에서 사라지기 전에 호출하는 메서드
+- `하나의 useState함수는 하나의 state만 관리`
+- 그러므로 `여러 번의 useState를 사용하면 여러 개의 state 관리`
 
 [맨 위로](#)
 
-## 라이프사이클 메서드 살펴보기
+## useEffect
 
-1. `render()` : `컴포넌트 모양새를 정의하는 메서드.`(라이프사이클 메서드 중 유일한 필수 메서드)
-   - 메서드 안에서 this.props와 this.state에 접근 할 수 있고, 리액트 요소를 반환.
-   - 메서드 안에서 이벤트 설정이 아닌 곳에서 setState를 사용하면 안되며, 브라우저의 DOM에 접근 해도 안된다.(DOM 정보를 가져오거나 변화를 줄 경우 componentDidMount에서 처리.)
-2. `constructor()` : 컴포넌트의 생성자 메서드로 `컴포넌트를 만들 때 처음으로 실행된다` (초기 state를 정할 수 있다.)
-3. `getDerivedStateFromProps()` : props에서 받아 온 값을 state에 동기화 시키는 용도로 사용, 컴포넌트가 마운트 될 때와 업데이트 될 때와 업데이트 될 때 호출.
+- `리액트 컴포넌트가 rendering 될 때마다 특정 작업을 수행하도록 설정하는 Hook`
+- 클래스형 컴포넌트의 `componentDidMount`와 `componentDidUpdate`를 합친 상태
+
+1. 마운트 될 때만 실행하고 싶을 때 (업데이트 할 때는 실행되지 않는다.)
 
 ```js
-  static getDerivedStateFromProps(nextProps, prevState){
-    if(nextProps.value!=prevState.value){ // 조건에 따라 특정 값 동기화
-      return {value : nextProps.value};
-    }
-    return null; // state 변경 필요 없으면 null 반환
-  }
+// 함수의 두번째 파라미터를 빈 배열로 넣어준다.
+
+useEffect(() => {
+  console.log({ name, nickname })
+}, [])
 ```
 
-4. `componentDidMount()` : 컴포넌트를 만들고, 첫 렌더링을 다 마친 후 실행. (이 안에서 JS 라이브러리 or 프레임워크의 함수를 호출하거나 이벤트 등록, setTimeout, setInterval,네트워크 요청 같은 비동기 작업 처리)
-5. `shouldComponentUpdate()` : props 또는 state를 변경했을 때, 리렌더링을 시작할지 여부를 지정하는 메서드. (default는 true 반환, false 반환시 업데이트 중지)
-6. `getSnapshotBeforeUpdate()` : render에서 만들어진 결과물이 브라우저에 실제로 반영되기 직전에 호출.(componentDidMount()의 세 번째 파라미터인 snapshot 값으로 전달받는다.- 업데이트 하기 직전의 값을 참고할 일이 있을 때 활용(스크롤바 유지 등))
+2. 특정 값이 업데이트될 때만 실행하고 싶을 때 (업데이트)
 
 ```js
-  getSnapshotBeforeUpdate(prevProps,prevState){
-    if(prevProps.array != this.state.array){
-      const {scrollTop, scrollhHeight} = this.list
-      return {scrollTop,scrollhHeight}
-    }
-  }
+// 함수의 두번째 파라미터에 검사하고 싶은 값을 넣어주면 된다.
+useEffect(() => {
+  console.log({ name, nickname })
+}, [name])
 ```
 
-7. `componentDidUpdate()` : 리렌더링을 완료한 후 실행. 업데이트가 끝난 직후이므로, DOM 관련 처리를 해도 무방하다.
-8. `componentWillUnmount()` : 컴포넌트를 DOM에서 제거할 때 실행. componentDidMount에서 등록한 이벤트, 타이머, 직접 생성한 DOM이 있다면 여기서 제거.
-9. `componentDidCatch()` : 컴포넌트 렌더링 도중 에러가 발생했을 때, 애플리케이션이 먹통이 되지 않고 오류 UI를 보여 줄 수 있게 해 준다.
+3. 뒷 정리 하기 (cleanup)
+
+- 컴포넌트가 `언마운트 되기 전 이나 업데이트 되기 직전에 작업을 수행하려면 cleanup 함수 반환`
 
 ```js
-  componentDidCatch(error, info) {
-    this.setState({ error: true }); // 어떤 error가 발생한지 알려준다. info는 어디에 있는 코드에서 오류가 발생했는지 정보를 준다.
-    console.log({ error, info });
+useEffect(() => {
+  console.log('이펙트')
+  console.log(name)
+  return () => {
+    console.log('클린업')
+    console.log(name)
   }
+}, [name])
+```
+
+- 오직 `언마운트 직전에만 동작`하려면 빈 배열을 넣는다.
+
+[맨 위로](#)
+
+## useReducer
+
+- useReducer는 `useState보다 더 다양한 컴포넌트 상황에 따라 다양한 상태를 다른 값으로 업데이트 해 주고 싶을 때 사용하는 Hook`이다.
+- reducer는` 현재 state`, `업데이트를 위해 필요한 정보를 담은 action 값`을 전달받아 새로운 state를 반환하는 함수.
+
+```js
+// reducer
+function reducer(state,action){
+  return {...}; // 불변성을 지키면서 업데이트한 새로운 상태를 반환한다.
+}
+```
+
+```js
+function reducer(state, action) {
+  switch (action.type) {
+    case 'up':
+      return { value: state.value + 1 }
+    case 'down':
+      return { value: state.value - 1 }
+    default:
+      return state
+  }
+}
+
+const Counter = () => {
+  const [state, dispatch] = useReducer(reducer, { value: 0 })
+  return (
+    <div>
+      <p>현재 카운터 {state.value} 입니다.</p>
+
+      <button onClick={() => dispatch({ type: 'up' })}>+1</button>
+      <button onClick={() => dispatch({ type: 'down' })}>-1</button>
+    </div>
+  )
+}
 ```
 
 [맨 위로](#)
 
-## 라이프사이클 메서드 사용하기
+## useMemo
 
-### 예제 컴포넌트 생성
+- `함수형 컴포넌트 내부에서 발생하는 연산을 최적화`
+- 렌더링 하는 과정에서 특정 값이 바뀌었을 때만 연산을 실행하고 만약에 원하는 값이 바뀐 것이 아니라면 이전에 연산했던 결과를 다시 사용하는 방식
+- useMemo(() => 실행 함수, 특정 값)
+
+```js
+const getAverage = numbers => {
+  console.log('평균값 계산중..')
+  if (numbers.length === 0) return 0
+  const sum = numbers.reduce((a, b) => a + b)
+  return sum / numbers.length
+}
+
+const Average = () => {
+  const [list, setList] = useState([])
+  const [number, setNumber] = useState('')
+
+  const onChange = e => {
+    setNumber(e.target.value)
+  }
+  const onInsert = e => {
+    const nextList = list.concat(parseInt(number))
+    setList(nextList)
+    setNumber('')
+  }
+
+  // list의 값이 바뀔때만 평균 값 계산.
+  const avg = useMemo(() => getAverage(list), [list])
+
+  return (
+    <div>
+      <input value={number} onChange={onChange} />
+      <button onClick={onInsert}>등록</button>
+      <ul>
+        {list.map((value, index) => (
+          <li key={index}>{value}</li>
+        ))}
+      </ul>
+      <div>
+        <b>평균 값:</b> {avg}
+      </div>
+    </div>
+  )
+}
+```
 
 [맨 위로](#)
 
-## 정리
+## useCallback
 
-<img src='https://kyun2da.dev/static/69e54fe57da139eabae168b5e8304af4/01645/lifecycle.png' height=500px>
+- useMemo와 상당히 비슷한 함수이다.
+- 주로 렌더링 성능을 최적화해야 하는 상황에서 사용. `(이벤트 핸들러 함수를 필요할 때만 생성 가능)`
+- 앞선 예제에서 컴포넌트가 리렌더링 될 때마다 onChange와 onInsert라는 함수가 새로 생성된다.
+- useCallback(생성하고 싶은 함수, 어떤 값이 변화했을 때 함수를 새로 생성하는지 명시하는 배열).(빈 배열은 컴포넌트가 렌더링 될 때 단 한번만 함수가 생성된다.)
+
+```js
+const onChange = useCallback(e => {
+  setNumber(e.target.value)
+}, []) // 컴포넌트가 처음 렌더링 될 때만 함수 생성
+
+const onInsert = useCallback(
+  e => {
+    const nextList = list.concat(parseInt(number))
+    setList(nextList)
+    setNumber('')
+  },
+  [number, list]
+) // number 혹은 list 가 바뀌었을 때만 함수 생성
+```
+
+- `숫자, 문자열, 객체 처럼 일반 값을 재사용하기 위해서는 useMemo`
+- `함수를 재사용 하기 위해서는 useCallback 을 사용`
+
+[맨 위로](#)
+
+## useRef
+
+- 함수형 컴포넌트에서 ref 를 쉽게 사용
+
+```js
+const getAverage = numbers => {
+  console.log('평균값 계산중..')
+  if (numbers.length === 0) return 0
+  const sum = numbers.reduce((a, b) => a + b)
+  return sum / numbers.length
+}
+
+const Average = () => {
+  const [list, setList] = useState([])
+  const [number, setNumber] = useState('')
+
+  // useRef 사용
+  const inputEl = useRef(null)
+
+  const onChange = useCallback(e => {
+    setNumber(e.target.value)
+  }, []) // 컴포넌트가 처음 렌더링 될 때만 함수 생성
+
+  const onInsert = useCallback(
+    e => {
+      const nextList = list.concat(parseInt(number))
+      setList(nextList)
+      setNumber('')
+      inputEl.current.focus()
+    },
+    [number, list]
+  ) // number 혹은 list 가 바뀌었을 때만 함수 생성
+
+  const avg = useMemo(() => getAverage(list), [list])
+
+  return (
+    <div>
+      <input value={number} onChange={onChange} ref={inputEl} />
+      <button onClick={onInsert}>등록</button>
+      <ul>
+        {list.map((value, index) => (
+          <li key={index}>{value}</li>
+        ))}
+      </ul>
+      <div>
+        <b>평균 값:</b> {avg}
+      </div>
+    </div>
+  )
+}
+```
+
+[맨 위로](#)
+
+## 커스텀 Hooks 만들기
+
+[맨 위로](#)
+
+## 다른 Hooks
 
 [맨 위로](#)
